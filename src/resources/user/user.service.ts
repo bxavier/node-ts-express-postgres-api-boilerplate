@@ -1,17 +1,27 @@
-import UserModel from './user.model';
-import { User } from './user.interface';
+import { Repository } from 'typeorm';
+import { AppDataSource } from '@/database/connection';
+import User from './user.entity';
+import { CreateUserDto, UpdateUserDto } from './user.interface';
 import { ConflictException, NotFoundException, ServerException } from '@/utils/exceptions';
+import logger from '@/utils/logger';
 
 class UserService {
+  private userRepository: Repository<User>;
+
+  constructor() {
+    this.userRepository = AppDataSource.getRepository(User);
+  }
+
   /**
    * Create a new user
    */
-  public async create(userData: Omit<User, '_id'>): Promise<User> {
+  public async create(userData: CreateUserDto): Promise<User> {
     try {
-      const user = await UserModel.create(userData);
-      return user;
+      const user = this.userRepository.create(userData);
+      return await this.userRepository.save(user);
     } catch (error: any) {
-      if (error.code === 11000) {
+      // PostgreSQL unique violation error code
+      if (error.code === '23505') {
         throw new ConflictException('User with this email');
       }
       throw new ServerException('Unable to create user');
@@ -23,8 +33,16 @@ class UserService {
    */
   public async findAll(): Promise<User[]> {
     try {
-      const users = await UserModel.find().select('-password');
-      return users;
+      return await this.userRepository.find({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
     } catch (error) {
       throw new ServerException('Unable to find users');
     }
@@ -35,7 +53,17 @@ class UserService {
    */
   public async findById(id: string): Promise<User> {
     try {
-      const user = await UserModel.findById(id).select('-password');
+      const user = await this.userRepository.findOne({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
 
       if (!user) {
         throw new NotFoundException('User');
@@ -53,15 +81,15 @@ class UserService {
   /**
    * Update user
    */
-  public async update(id: string, userData: Partial<User>): Promise<User> {
+  public async update(id: string, userData: UpdateUserDto): Promise<User> {
     try {
-      const user = await UserModel.findByIdAndUpdate(id, userData, { new: true }).select('-password');
+      const result = await this.userRepository.update(id, userData);
 
-      if (!user) {
+      if (result.affected === 0) {
         throw new NotFoundException('User');
       }
 
-      return user;
+      return await this.findById(id);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -75,9 +103,9 @@ class UserService {
    */
   public async delete(id: string): Promise<void> {
     try {
-      const result = await UserModel.findByIdAndDelete(id);
+      const result = await this.userRepository.delete(id);
 
-      if (!result) {
+      if (result.affected === 0) {
         throw new NotFoundException('User');
       }
     } catch (error) {

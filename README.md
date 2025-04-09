@@ -1,26 +1,33 @@
 # Node.js Express TypeScript Boilerplate
 
-A clean, well-structured boilerplate for building RESTful APIs with Node.js, Express, TypeScript, and MongoDB.
+A clean, well-structured boilerplate for building RESTful APIs with Node.js, Express, TypeScript, and PostgreSQL.
 
 ## Features
 
 - **TypeScript Support**
 - **Express 5**
-- **MongoDB Integration**: Mongoose ODM with connection retry
-- **Architecture Pattern**: Controller-Service-Model pattern
+- **PostgreSQL with TypeORM**: Type-safe entity definitions and querying
+- **Architecture Pattern**: Controller-Service-Repository pattern
 - **Validation**: Zod Request validation
 - **Error Handling**: Enhanced exception hierarchy with consistent responses
 - **Logging**: Winston and Morgan
 - **Security**: Helmet
-- **API Documentation**: Minimal Swagger integration
+- **API Documentation**: Swagger integration
 - **Health Monitoring**: System health checks
 
 ## Project Structure
 
 ```
 src/
+├── database/            # Database connection and configuration
 ├── middlewares/         # Express middlewares
-├── resources/           # API resources (controllers, services, models)
+├── resources/           # API resources (controllers, services, entities)
+│   └── user/            # User resource example
+│       ├── user.controller.ts   # HTTP request handling
+│       ├── user.service.ts      # Business logic
+│       ├── user.entity.ts       # TypeORM entity definition
+│       ├── user.interface.ts    # TypeScript interfaces
+│       └── user.validation.ts   # Request validation schemas
 ├── utils/               # Utility functions, interfaces, and helpers
 │   └── exceptions/      # Exception hierarchy for error handling
 ├── app.ts               # Express app configuration
@@ -33,16 +40,18 @@ This boilerplate follows a modular architecture:
 
 1. **Controller**: HTTP requests and responses
 2. **Service**: Business logic
-3. **Model**: Data schema and database
+3. **Entity**: Database schema and TypeORM mapping
+4. **Interface**: TypeScript interfaces for data structures
+5. **Validation**: Request validation with Zod
 
-Each resource (like User) follows this pattern, providing clear separation of concerns.
+Each resource follows this pattern, providing clear separation of concerns.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js (v14+)
-- MongoDB instance
+- PostgreSQL database
 
 ### Installation
 
@@ -52,13 +61,35 @@ Each resource (like User) follows this pattern, providing clear separation of co
    npm install
    ```
 3. Create a `.env` file:
+
    ```
    NODE_ENV=development
    PORT=3000
-   MONGO_PATH=localhost:27017
-   MONGO_USER=admin
-   MONGO_PASSWORD=password
-   MONGO_DATABASE=my_database
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USERNAME=postgres
+   DB_PASSWORD=postgres
+   DB_DATABASE=my_database
+   ```
+
+4. Create the required database schema:
+
+   ```sql
+   -- Run this in your PostgreSQL database
+   CREATE SCHEMA auth;
+
+   CREATE TABLE auth.users (
+     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+     name character varying,
+     email character varying UNIQUE NOT NULL,
+     password character varying NOT NULL,
+     role character varying DEFAULT 'user',
+     "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+     "updatedAt" TIMESTAMP NOT NULL DEFAULT now()
+   );
+
+   -- Enable UUID generation
+   CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
    ```
 
 ### Running the Application
@@ -82,8 +113,8 @@ Complete User resource:
 
 - `user.controller.ts`: Route definitions and request handling
 - `user.service.ts`: Business logic
-- `user.model.ts`: Mongoose schema and model
-- `user.interface.ts`: TypeScript interface
+- `user.entity.ts`: TypeORM entity definition
+- `user.interface.ts`: TypeScript interfaces
 - `user.validation.ts`: Zod validation schemas
 
 This provides a comprehensive template for creating additional resources.
@@ -105,7 +136,7 @@ export const createUserSchema = z.object({
 
 ## API Documentation
 
-The API is documented using minimal Swagger annotations directly in controllers:
+The API is documented using Swagger annotations in controllers:
 
 ```typescript
 /**
@@ -133,8 +164,6 @@ The application includes a comprehensive health endpoint that provides system in
   - Disk space
   - Application uptime
   - Node.js and Express versions
-
-This single endpoint provides all the necessary information for monitoring the application.
 
 ## Error Handling
 

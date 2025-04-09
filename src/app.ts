@@ -1,3 +1,4 @@
+import 'reflect-metadata'; // Required for TypeORM decorators
 import express, { Application } from 'express';
 import compression from 'compression';
 import cors from 'cors';
@@ -5,10 +6,11 @@ import morgan from 'morgan';
 import Controller from '@/utils/interfaces/controller.interface';
 import ErrorMiddleware from '@/middlewares/error.middleware';
 import helmet from 'helmet';
-import connectDatabase from '@/utils/database';
+import { connectDatabase } from '@/database/connection';
 import logger from '@/utils/logger';
 import config from '@/utils/config';
 import { setupSwagger } from '@/utils/swagger';
+
 class App {
   public express: Application;
   public port: number;
@@ -17,7 +19,9 @@ class App {
     this.express = express();
     this.port = config.PORT;
 
-    this.initializeDatabaseConnection();
+    // Connect to database
+    connectDatabase();
+
     this.initializeMiddleware();
     this.initializeControllers(controllers);
     this.initializeErrorHandling();
@@ -53,10 +57,6 @@ class App {
 
   private initializeErrorHandling(): void {
     this.express.use(ErrorMiddleware);
-  }
-
-  private initializeDatabaseConnection(): void {
-    connectDatabase();
   }
 
   private initializeSwagger(): void {

@@ -22,7 +22,6 @@
     "@types/express": "^5.0.1",
     "@types/helmet": "^0.0.48",
     "@types/module-alias": "^2.0.4",
-    "@types/mongoose": "^5.11.96",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.14.0",
     "@types/swagger-jsdoc": "^6.0.4",
@@ -34,9 +33,11 @@
     "eslint-plugin-prettier": "^5.2.6",
     "prettier": "^3.5.3",
     "tsc-watch": "^6.2.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@prisma/client": "^6.6.0",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -44,12 +45,15 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "module-alias": "^2.2.3",
-    "mongoose": "^8.13.2",
     "morgan": "^1.10.0",
+    "pg": "^8.14.1",
+    "reflect-metadata": "^0.2.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "systeminformation": "^5.25.11",
+    "typeorm": "^0.3.22",
     "winston": "^3.17.0",
+    "winston-postgresql": "^1.2.0",
     "zod": "^3.24.2"
   },
   "_moduleAliases": {

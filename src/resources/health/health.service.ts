@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
 import si from 'systeminformation';
 import config from '@/utils/config';
+import { AppDataSource } from '@/database/connection';
 
 interface DatabaseStatus {
   name: string;
@@ -58,20 +58,21 @@ class HealthService {
       { value: 3, label: 'disconnecting' },
     ];
 
-    const currentDbState = dbState.find((state) => state.value === mongoose.connection.readyState) || dbState[0];
+    const isConnected = AppDataSource.isInitialized;
+    const currentDbState = dbState.find((state) => state.value === (isConnected ? 1 : 0)) || dbState[0];
 
     const dbInfo: DatabaseStatus = {
-      name: config.MONGO_DATABASE,
-      host: config.MONGO_PATH,
+      name: config.DB_DATABASE,
+      host: `${config.DB_HOST}:${config.DB_PORT}`,
       state: currentDbState.value,
       status: currentDbState.label,
     };
 
-    // If connected, measure response time with a simple ping
-    if (currentDbState.value === 1 && mongoose.connection.db) {
+    // If connected, measure response time with a simple query
+    if (isConnected) {
       try {
         const start = Date.now();
-        await mongoose.connection.db.admin().ping();
+        await AppDataSource.query('SELECT 1');
         const end = Date.now();
         dbInfo.responseTime = end - start;
       } catch (error) {

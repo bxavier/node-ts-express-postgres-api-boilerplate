@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-// Schema for ID parameter validation
+// Schema for UUID parameter validation
 export const idParamSchema = z.object({
   params: z.object({
-    id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ID format'),
+    id: z.string().uuid('Invalid UUID format'),
   }),
 });
 
@@ -20,7 +20,7 @@ export const createUserSchema = z.object({
 // Schema for updating a user
 export const updateUserSchema = z.object({
   params: z.object({
-    id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid MongoDB ID format'),
+    id: z.string().uuid('Invalid UUID format'),
   }),
   body: z.object({
     name: z.string().min(2).max(50).optional(),
