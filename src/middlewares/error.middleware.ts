@@ -3,7 +3,6 @@ import { ApiException } from '@/utils/exceptions';
 import logger from '@/utils/logger';
 
 const errorMiddleware = (error: Error, request: Request, response: Response, next: NextFunction): void => {
-  // If it's one of our API exceptions
   if (error instanceof ApiException) {
     const status = error.status;
     const message = error.message;
@@ -19,7 +18,6 @@ const errorMiddleware = (error: Error, request: Request, response: Response, nex
       ...(errors && { errors }),
     });
   } else {
-    // For unhandled errors, return 500
     logger.error(`[UNHANDLED_ERROR] 500: ${error.message}`);
     logger.error(error.stack || 'No stack trace available');
 

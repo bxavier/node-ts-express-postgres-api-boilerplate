@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import Controller from '@/utils/interfaces/controller.interface';
 import ErrorMiddleware from '@/middlewares/error.middleware';
 import helmet from 'helmet';
-import { connectDatabase } from '@/database/connection';
+import { connectDatabase } from '@/utils/database';
 import logger from '@/utils/logger';
 import config from '@/utils/config';
 import { setupSwagger } from '@/utils/swagger';
@@ -19,7 +19,6 @@ class App {
     this.express = express();
     this.port = config.PORT;
 
-    // Connect to database
     connectDatabase();
 
     this.initializeMiddleware();
@@ -32,7 +31,6 @@ class App {
     this.express.use(helmet());
     this.express.use(cors());
 
-    // Create morgan token for timestamp in winston format
     morgan.token('timestamp', () => {
       const now = new Date();
       const datePart = now.toISOString().replace('T', ' ').replace('Z', '').split('.')[0];

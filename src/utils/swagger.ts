@@ -2,7 +2,6 @@ import { Application } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import logger from './logger';
-import config from './config';
 
 export const setupSwagger = (app: Application) => {
   const options: swaggerJSDoc.Options = {
@@ -34,5 +33,11 @@ export const setupSwagger = (app: Application) => {
     })
   );
 
+  app.use('/docs-json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
+
   logger.info('📚 Swagger docs available at /docs');
+  logger.info('📚 Swagger docs JSON available at /docs-json');
 };

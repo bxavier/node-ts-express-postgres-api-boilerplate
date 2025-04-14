@@ -1,6 +1,6 @@
 import si from 'systeminformation';
 import config from '@/utils/config';
-import { AppDataSource } from '@/database/connection';
+import { AppDataSource } from '@/utils/database';
 
 interface DatabaseStatus {
   name: string;

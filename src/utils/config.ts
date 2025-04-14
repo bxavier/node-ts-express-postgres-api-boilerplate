@@ -14,7 +14,6 @@ class Config {
 
   constructor() {
     try {
-      // Validate and clean environment variables
       const env = cleanEnv(process.env, {
         NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
         PORT: port({ default: 3000 }),
@@ -25,7 +24,6 @@ class Config {
         DB_DATABASE: str({ default: 'dacrud-development' }),
       });
 
-      // Assign validated env variables to class properties
       this.NODE_ENV = env.NODE_ENV;
       this.PORT = env.PORT;
       this.DB_HOST = env.DB_HOST;
@@ -47,5 +45,4 @@ class Config {
   }
 }
 
-// Export a singleton instance to be used throughout the app
 export default new Config();

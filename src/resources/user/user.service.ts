@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { AppDataSource } from '@/database/connection';
+import { AppDataSource } from '@/utils/database';
 import User from './user.entity';
 import { CreateUserDto, UpdateUserDto } from './user.interface';
 import { ConflictException, NotFoundException, ServerException } from '@/utils/exceptions';
